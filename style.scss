@@ -1,0 +1,98 @@
+*,
+::after,
+::before {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+:root {
+	--bg-color: #333;
+	--font-color: #fff;
+
+	--game-bg: #dfdfdf;
+	--main-green: rgb(119, 196, 119);
+	--deep-green: rgb(110, 147, 110);
+	--food-bg: rgb(217, 217, 14);
+
+	--tile-size: 15px;
+}
+
+html {
+	font-size: 62.5%;
+	font-size: 10px;
+}
+
+body {
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--bg-color);
+	color: var(--font-color);
+	font-family: 'Montserrat', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+	overflow: hidden;
+}
+
+.title {
+	position: absolute;
+	top: 5vh;
+	font-size: 3em;
+	color: var(--font-color);
+}
+
+.container {
+	padding: 3rem;
+	position: absolute;
+	top: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: 20px;
+	background-color: var(--game-bg);
+	border-radius: 10px;
+	// border: 10px solid var(--main-green);
+}
+
+.board {
+    position: relative;
+	width: calc(var(--tile-size) * 20);
+	height: calc(var(--tile-size) * 20);
+	border: 1px solid var(--bg-color);
+	border-radius: 2px;
+	background-color: transparent;
+}
+
+.snake {
+	position: absolute;
+	top: 50%;
+	left: 25%;
+	display: initial;
+	background-color: #fff;
+}
+
+.tile {
+	width: var(--tile-size);
+	height: var(--tile-size);
+	padding: 0;
+	margin: 0;
+	border-radius: 2px;
+}
+
+.snake-tile {
+	background-color: var(--main-green);
+	border: 1px solid var(--deep-green);
+}
+
+.food-tile {
+    position: absolute;
+    top: 35%;
+    right: 30%;
+	background-color: var(--food-bg);
+	border: 1px solid var(--deep-green);
+}
