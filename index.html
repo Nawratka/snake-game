@@ -16,13 +16,23 @@
 <body>
     <h1 class="title">Snake Game</h1>
     <div class="container">
+        <div class="info-box">
+            <p class="score-text">Score:</p>
+            <p class="score">0000</p>
+            <button class="start-btn">Start</button>
+            <p class="instructions">Manipulate using keys: <span class="arrows">⬅ ⬆ ⬇ ➡</span></p>
+        </div>
         <div class="board">
             <div class="snake">
-                <div class="snake-tile tile"></div><div class="snake-tile tile"></div><div class="snake-tile tile"></div><div class="snake-tile tile"></div><div class="snake-tile tile"></div><div class="snake-tile tile"></div>
+                <div class="snake-tile tile" data-tile="1"></div>
+                <div class="snake-tile tile" data-tile="2"></div>
+                <div class="snake-tile tile" data-tile="3"></div>
+                <div class="snake-tile tile" data-tile="4"></div>
+                <div class="snake-tile tile" data-tile="5"></div>
+                <div class="snake-tile tile" data-tile="6"></div>
             </div>
             <div class="food-tile tile"></div>
         </div>
-
     </div>
 
 </body>

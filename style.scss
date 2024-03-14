@@ -16,6 +16,8 @@
 	--food-bg: rgb(217, 217, 14);
 
 	--tile-size: 15px;
+	--food-y: 30%;
+	--food-x: 70%;
 }
 
 html {
@@ -46,6 +48,8 @@ body {
 }
 
 .container {
+	width: min-content;
+	height: min-content;
 	padding: 3rem;
 	position: absolute;
 	top: 100px;
@@ -53,14 +57,71 @@ body {
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	gap: 20px;
+	gap: 16px;
 	background-color: var(--game-bg);
 	border-radius: 10px;
-	// border: 10px solid var(--main-green);
+	color: var(--bg-color);
+	font-size: 1.5em;
+}
+
+.info-box {
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	display: grid;
+	grid-template-columns: 45px 1fr 1fr;
+	gap: 10px;
+}
+
+.score,
+.score-text,
+.start-btn {
+	align-self: center;
+	grid-row: 1/2;
+}
+
+.score-text {
+	grid-column: 1/2;
+}
+
+.score {
+	grid-column: 2/3;
+}
+
+.start-btn {
+	grid-column: 3/4;
+}
+
+.instructions {
+	grid-column: 1/4;
+	grid-row: 2/3;
+	padding-top: 10px;
+	border-top: 1px solid var(--bg-color);
+}
+
+.arrows {
+	font-size: 1.8rem;
+}
+
+.start-btn {
+	width: 100%;
+	height: 30px;
+	background-color: var(--main-green);
+	color: var(--font-color);
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	border-radius: 2px;
+    transition: background-color .3s;
+	cursor: pointer;
+}
+
+.start-btn:hover {
+    background-color: var(--deep-green);
 }
 
 .board {
-    position: relative;
+	position: relative;
 	width: calc(var(--tile-size) * 20);
 	height: calc(var(--tile-size) * 20);
 	border: 1px solid var(--bg-color);
@@ -90,9 +151,9 @@ body {
 }
 
 .food-tile {
-    position: absolute;
-    top: 35%;
-    right: 30%;
+	position: absolute;
+	top: var(--food-y);
+	left: var(--food-x);
 	background-color: var(--food-bg);
 	border: 1px solid var(--deep-green);
 }
