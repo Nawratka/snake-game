@@ -129,6 +129,8 @@ body {
   color: var(--font-color);
   text-transform: uppercase;
   letter-spacing: 1px;
+  border: none;
+  outline: none;
   border-radius: 2px;
   -webkit-transition: background-color 0.3s;
   transition: background-color 0.3s;
@@ -139,7 +141,7 @@ body {
   background-color: var(--deep-green);
 }
 
-.board {
+.game-board {
   position: relative;
   width: calc(var(--tile-size) * 20);
   height: calc(var(--tile-size) * 20);
