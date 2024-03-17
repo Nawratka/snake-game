@@ -1,3 +1,4 @@
+import { setTimeout } from 'core-js';
 import game from './game.js';
 
 const startBtn = document.querySelector('.start-btn');
@@ -19,6 +20,7 @@ const gameBoardPosition = {
 export const state = {
   direction: 'up',
   score: 0,
+  snakeLength: 6,
 };
 
 const setInitialState = function () {
@@ -68,36 +70,14 @@ const startGame = function () {
   // changeDirection();
   setInterval(function () {
     game.moveSnake();
-  }, 1000);
 
+  }, 1000);
+  // firstTile.addEventListener('move', (e)=>{console.log(e);})
   game.changeDirection();
 };
 
-// DEFINE NEW DIRECTION
-// game.changeDirection() = function() {
-// 	window.addEventListener('keydown', (e) => {
-// 		if (
-// 			!e.keyCode === 37 ||
-// 			!e.keyCode === 38 ||
-// 			!e.keyCode === 39 ||
-// 			!e.keyCode === 40
-// 		)
-// 			return;
-
-// 		state.direction = directionToGo(e.keyCode);
-// 	});
-// }
-
-// let posi = firstTilePosition.top - 10;
-// console.log(posi);
-
-
-
-// const tick = function () {
-//   setInterval(startGame, 1000);
-// };
-
 const init = function () {
+  game.createRemainingTiles();
   startBtn.addEventListener('click', startGame);
   // tick();
 };
