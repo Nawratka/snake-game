@@ -1,14 +1,68 @@
-import { state } from './script';
+import 'core-js/stable';
+import { state, intervalID, foodTile } from './script';
 
 const firstTile = document.querySelector('[data-tile="1"]');
+const gameBoard = document.querySelector('.game-board');
 
 class Game {
-  firstTilePosition = {
-    top: Math.floor(firstTile.getBoundingClientRect().top),
-    bottom: Math.floor(firstTile.getBoundingClientRect().bottom),
-    left: Math.floor(firstTile.getBoundingClientRect().left),
-    right: Math.floor(firstTile.getBoundingClientRect().right),
+  firstTilePosition() {
+    return {
+      top: Math.floor(firstTile.getBoundingClientRect().top),
+      bottom: Math.floor(firstTile.getBoundingClientRect().bottom),
+      left: Math.floor(firstTile.getBoundingClientRect().left),
+      right: Math.floor(firstTile.getBoundingClientRect().right),
+    };
+  }
+
+  foodPosition() {
+    return {
+      top: Math.floor(foodTile.getBoundingClientRect().top),
+      bottom: Math.floor(foodTile.getBoundingClientRect().bottom),
+      left: Math.floor(foodTile.getBoundingClientRect().left),
+      right: Math.floor(foodTile.getBoundingClientRect().right),
+    };
+  }
+
+  gameBoardPosition = {
+    top: Math.floor(gameBoard.getBoundingClientRect().top),
+    bottom: Math.floor(gameBoard.getBoundingClientRect().bottom),
+    left: Math.floor(gameBoard.getBoundingClientRect().left),
+    right: Math.floor(gameBoard.getBoundingClientRect().right),
   };
+
+  distanceToBorders() {
+    return {
+      top: Math.abs(this.gameBoardPosition.top - this.firstTilePosition().top),
+      bottom: Math.abs(
+        this.gameBoardPosition.bottom - this.firstTilePosition().bottom
+      ),
+      left: Math.abs(
+        this.gameBoardPosition.left - this.firstTilePosition().left
+      ),
+      right: Math.abs(
+        this.gameBoardPosition.right - this.firstTilePosition().right
+      ),
+    };
+  }
+
+  createRemainingTiles() {
+    for (let i = 2; i <= state.snakeLength; i++) {
+      let tempTile = document.querySelector(`[data-tile="${i - 1}"]`);
+      const markup = ` <div class="snake-tile tile" data-tile="${i}"></div>`;
+      const newTop =
+        Number(
+          window.getComputedStyle(tempTile).getPropertyValue('top').slice(0, -2)
+        ) + 15;
+      const newLeft = Number(
+        window.getComputedStyle(tempTile).getPropertyValue('left').slice(0, -2)
+      );
+
+      tempTile.insertAdjacentHTML('afterend', markup);
+      const newTile = document.querySelector(`[data-tile="${i}"]`);
+      newTile.style.setProperty('top', `${newTop}px`);
+      newTile.style.setProperty('left', `${newLeft}px`);
+    }
+  }
 
   moveSnake() {
     let snakesTiles = document.querySelectorAll('.snake-tile');
@@ -90,23 +144,15 @@ class Game {
     if (keycode === 40) return 'bottom';
   };
 
-  createRemainingTiles() {
-    for (let i = 2; i <= state.snakeLength; i++) {
-      let tempTile = document.querySelector(`[data-tile="${i - 1}"]`);
-      const markup = ` <div class="snake-tile tile" data-tile="${i}"></div>`;
-      const newTop =
-        Number(
-          window.getComputedStyle(tempTile).getPropertyValue('top').slice(0, -2)
-        ) + 15;
-      const newLeft = Number(
-        window.getComputedStyle(tempTile).getPropertyValue('left').slice(0, -2)
-      );
-
-      tempTile.insertAdjacentHTML('afterend', markup);
-      const newTile = document.querySelector(`[data-tile="${i}"]`);
-      newTile.style.setProperty('top', `${newTop}px`);
-      newTile.style.setProperty('left', `${newLeft}px`);
+  handleReachingBorders() {
+    const distance = this.distanceToBorders();
+    for (const [_, value] of Object.entries(distance)) {
+      if (value <= 1) this.stopGame();
     }
+  }
+
+  stopGame() {
+    clearInterval(intervalID);
   }
 }
 
