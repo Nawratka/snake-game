@@ -1,28 +1,13 @@
 import 'core-js/stable';
-import { state, intervalID, foodTile } from './script';
+import { state, intervalID } from './script';
 
 const firstTile = document.querySelector('[data-tile="1"]');
 const gameBoard = document.querySelector('.game-board');
+const score = document.querySelector('.score');
+const boardWidth = +window.getComputedStyle(gameBoard).width.slice(0, -2);
+let foodTile = document.querySelector('.food-tile');
 
 class Game {
-  firstTilePosition() {
-    return {
-      top: Math.floor(firstTile.getBoundingClientRect().top),
-      bottom: Math.floor(firstTile.getBoundingClientRect().bottom),
-      left: Math.floor(firstTile.getBoundingClientRect().left),
-      right: Math.floor(firstTile.getBoundingClientRect().right),
-    };
-  }
-
-  foodPosition() {
-    return {
-      top: Math.floor(foodTile.getBoundingClientRect().top),
-      bottom: Math.floor(foodTile.getBoundingClientRect().bottom),
-      left: Math.floor(foodTile.getBoundingClientRect().left),
-      right: Math.floor(foodTile.getBoundingClientRect().right),
-    };
-  }
-
   gameBoardPosition = {
     top: Math.floor(gameBoard.getBoundingClientRect().top),
     bottom: Math.floor(gameBoard.getBoundingClientRect().bottom),
@@ -30,20 +15,31 @@ class Game {
     right: Math.floor(gameBoard.getBoundingClientRect().right),
   };
 
-  distanceToBorders() {
+  positionOfElement(element) {
     return {
-      top: Math.abs(this.gameBoardPosition.top - this.firstTilePosition().top),
-      bottom: Math.abs(
-        this.gameBoardPosition.bottom - this.firstTilePosition().bottom
-      ),
-      left: Math.abs(
-        this.gameBoardPosition.left - this.firstTilePosition().left
-      ),
-      right: Math.abs(
-        this.gameBoardPosition.right - this.firstTilePosition().right
-      ),
+      top: Math.floor(element.getBoundingClientRect().top),
+      bottom: Math.floor(element.getBoundingClientRect().bottom),
+      left: Math.floor(element.getBoundingClientRect().left),
+      right: Math.floor(element.getBoundingClientRect().right),
     };
   }
+
+  distanceToElement(element) {
+    return {
+      top: element.top - this.positionOfElement(firstTile).top,
+      bottom: element.bottom - this.positionOfElement(firstTile).bottom,
+      left: element.left - this.positionOfElement(firstTile).left,
+      right: element.right - this.positionOfElement(firstTile).right,
+    };
+  }
+  // distanceToElement(element) {
+  //   return {
+  //     top: element.top - this.firstTilePosition().top,
+  //     bottom: element.bottom - this.firstTilePosition().bottom,
+  //     left: element.left - this.firstTilePosition().left,
+  //     right: element.right - this.firstTilePosition().right,
+  //   };
+  // }
 
   createRemainingTiles() {
     for (let i = 2; i <= state.snakeLength; i++) {
@@ -145,14 +141,85 @@ class Game {
   };
 
   handleReachingBorders() {
-    const distance = this.distanceToBorders();
-    for (const [_, value] of Object.entries(distance)) {
-      if (value <= 1) this.stopGame();
+    const distance = this.distanceToElement(this.gameBoardPosition);
+    for (const [direction, value] of Object.entries(distance)) {
+      if (
+        (state.direction === 'up' && direction === 'top' && value === 15) ||
+        (state.direction === 'bottom' &&
+          direction === 'bottom' &&
+          value === -15) ||
+        (state.direction === 'left' && direction === 'left' && value === 15) ||
+        (state.direction === 'right' && direction === 'right' && value === -15)
+      )
+        this.stopGame();
     }
   }
 
   stopGame() {
     clearInterval(intervalID);
+  }
+
+  collectingFoodHandle() {
+    if (
+      this.positionOfElement(foodTile).top ===
+        this.positionOfElement(firstTile).top &&
+      this.positionOfElement(foodTile).left ===
+        this.positionOfElement(firstTile).left
+    ) {
+      state.score += 10;
+      const scoreStr = String(state.score);
+      score.textContent = scoreStr.padStart(4, '0');
+      this.removeEatenTile();
+      this.extendSnake();
+      this.createFoodTile();
+    }
+  }
+
+  removeEatenTile() {
+    gameBoard.removeChild(foodTile);
+  }
+
+  createFoodTile() {
+    foodTile = document.createElement('div');
+    foodTile.classList.add('food-tile', 'tile');
+    let top = this.getRandomInt(boardWidth);
+    foodTile.style.setProperty('top', `${top}px`);
+    let left = this.getRandomInt(boardWidth);
+    foodTile.style.setProperty('left', `${left}px`);
+    gameBoard.appendChild(foodTile);
+  }
+
+  getRandomInt(max) {
+    let tempNumber;
+    while (tempNumber % 15 !== 0) {
+      tempNumber = Math.floor(Math.random() * max);
+    }
+    return tempNumber;
+  }
+
+  extendSnake() {
+    const currentTiles = document.querySelectorAll('.snake-tile');
+
+    let lastTile = document.querySelector(
+      `[data-tile="${currentTiles.length}"]`
+    );
+    const markup = ` <div class="snake-tile tile" data-tile="${
+      currentTiles.length + 1
+    }"></div>`;
+    const newTop =
+      Number(
+        window.getComputedStyle(lastTile).getPropertyValue('top').slice(0, -2)
+      ) + 15;
+    const newLeft = Number(
+      window.getComputedStyle(lastTile).getPropertyValue('left').slice(0, -2)
+    );
+
+    lastTile.insertAdjacentHTML('afterend', markup);
+    const newTile = document.querySelector(
+      `[data-tile="${currentTiles.length + 1}"]`
+    );
+    newTile.style.setProperty('top', `${newTop}px`);
+    newTile.style.setProperty('left', `${newLeft}px`);
   }
 }
 

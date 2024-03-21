@@ -10,6 +10,9 @@
   --bg-color: #333;
   --font-color: #fff;
 
+  --board-width: 20;
+  --board-height: 20;
+
   --game-bg: #dfdfdf;
   --main-green: rgb(119, 196, 119);
   --deep-green: rgb(110, 147, 110);
@@ -21,7 +24,7 @@
   // --first-tile-bottom: 135px;
   // --first-tile-right: 205px;
   --food-top: 90px;
-  --food-left: 205px;
+  --food-left: 210px;
 }
 
 html {
@@ -128,11 +131,12 @@ body {
 
 .game-board {
   position: relative;
-  width: calc(var(--tile-size) * 20);
-  height: calc(var(--tile-size) * 20);
+  width: calc(var(--tile-size) * var(--board-width));
+  height: calc(var(--tile-size) * var(--board-height));
   border: 1px solid var(--bg-color);
   border-radius: 2px;
   background-color: transparent;
+  overflow: hidden;
 }
 
 .tile {
@@ -153,11 +157,6 @@ body {
 }
 
 [data-tile='1'] {
-  // top: var(--first-tile-top);
-  // top: 150px;
-
-  // bottom: var(--first-tile-bottom);
-  // right: var(--first-tile-right);
   background-color: var(--main-green);
 }
 

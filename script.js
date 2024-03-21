@@ -38,7 +38,8 @@ const startGame = function () {
     intervalID = setInterval(function () {
       game.moveSnake();
       game.handleReachingBorders();
-    }, 500);
+      game.collectingFoodHandle();
+    }, 400);
   }
 
   game.changeDirection();
