@@ -68,6 +68,7 @@ body {
   background-color: var(--game-bg);
   border-radius: 10px;
   color: var(--bg-color);
+  overflow: hidden;
   font-size: 1.5em;
 }
 
@@ -111,8 +112,7 @@ body {
   font-size: 1.8rem;
 }
 
-.start-btn {
-  width: 100%;
+.btn {
   height: 30px;
   background-color: var(--main-green);
   color: var(--font-color);
@@ -125,8 +125,12 @@ body {
   cursor: pointer;
 }
 
-.start-btn:hover {
+.btn:hover {
   background-color: var(--deep-green);
+}
+
+.start-btn {
+  width: 100%;
 }
 
 .game-board {
@@ -152,8 +156,6 @@ body {
   background-color: var(--main-green);
   border: 1px solid var(--deep-green);
   left: var(--first-tile-left);
-//   top: 0;
-  //   display: block;
 }
 
 [data-tile='1'] {
@@ -166,4 +168,30 @@ body {
   left: var(--food-left);
   background-color: var(--food-bg);
   border: 1px solid var(--deep-green);
+}
+
+.end-box {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  background-color: #00000087;
+}
+
+.close-btn {
+  width: 117px;
+}
+
+.summation {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--font-color);
+}
+
+.hidden {
+  display: none;
 }

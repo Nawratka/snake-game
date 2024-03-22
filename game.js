@@ -1,9 +1,13 @@
 import 'core-js/stable';
-import { state, intervalID } from './script';
+import { state, intervalID, score } from './script';
+import { setInitialState, init } from './script';
 
 const firstTile = document.querySelector('[data-tile="1"]');
 const gameBoard = document.querySelector('.game-board');
-const score = document.querySelector('.score');
+// const score = document.querySelector('.score');
+const endBox = document.querySelector('.end-box');
+const displayEndScore = document.querySelector('.display-score');
+const closeBtn = document.querySelector('.close-btn');
 const boardWidth = +window.getComputedStyle(gameBoard).width.slice(0, -2);
 let foodTile = document.querySelector('.food-tile');
 
@@ -32,14 +36,6 @@ class Game {
       right: element.right - this.positionOfElement(firstTile).right,
     };
   }
-  // distanceToElement(element) {
-  //   return {
-  //     top: element.top - this.firstTilePosition().top,
-  //     bottom: element.bottom - this.firstTilePosition().bottom,
-  //     left: element.left - this.firstTilePosition().left,
-  //     right: element.right - this.firstTilePosition().right,
-  //   };
-  // }
 
   createRemainingTiles() {
     for (let i = 2; i <= state.snakeLength; i++) {
@@ -71,6 +67,7 @@ class Game {
     });
 
     this.moveRemainingTiles(snakesTiles, coords);
+
     if (state.direction === 'left') this.goLeft();
     if (state.direction === 'up') this.goUp();
     if (state.direction === 'right') this.goRight();
@@ -92,6 +89,7 @@ class Game {
       Number(
         window.getComputedStyle(firstTile).getPropertyValue('top').slice(0, -2)
       ) - 15;
+
     firstTile.style.setProperty('top', `${newUp}px`);
   }
 
@@ -121,6 +119,7 @@ class Game {
 
   changeDirection() {
     window.addEventListener('keydown', e => {
+      // key other than directions
       if (
         !e.keyCode === 37 ||
         !e.keyCode === 38 ||
@@ -129,6 +128,13 @@ class Game {
       )
         return;
 
+      // can't change on opposite direction
+      if (state.direction === 'up' && e.keyCode === 40) return;
+      if (state.direction === 'bottom' && e.keyCode === 38) return;
+      if (state.direction === 'left' && e.keyCode === 39) return;
+      if (state.direction === 'right' && e.keyCode === 37) return;
+
+      // change direction
       state.direction = this.directionToGo(e.keyCode);
     });
   }
@@ -156,7 +162,25 @@ class Game {
   }
 
   stopGame() {
+    const snake = Array.from(document.querySelectorAll('.snake-tile'));
+
     clearInterval(intervalID);
+    endBox.classList.remove('hidden');
+    displayEndScore.textContent = state.score;
+    closeBtn.addEventListener('click', e => {
+      if (e.target !== closeBtn) return;
+      endBox.classList.add('hidden');
+      snake.forEach((tile,index) => {
+        if(index === 0) return
+        this.removeItem(tile)
+      });
+      setInitialState();
+      init();
+    });
+  }
+
+  removeItem(item) {
+    gameBoard.removeChild(item)
   }
 
   collectingFoodHandle() {
@@ -220,6 +244,19 @@ class Game {
     );
     newTile.style.setProperty('top', `${newTop}px`);
     newTile.style.setProperty('left', `${newLeft}px`);
+  }
+
+  eatHimself() {
+    const snakesTiles = document.querySelectorAll('.snake-tile');
+    snakesTiles.forEach((tile, index) => {
+      if (index <= 3) return;
+
+      if (
+        tile.style.top === firstTile.style.top &&
+        tile.style.left === firstTile.style.left
+      )
+        this.stopGame();
+    });
   }
 }
 

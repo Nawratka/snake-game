@@ -1,51 +1,47 @@
 // import { setTimeout } from 'core-js';
 import game from './game.js';
 
+export const score = document.querySelector('.score')
 const startBtn = document.querySelector('.start-btn');
-let snakesTiles = document.querySelectorAll('.snake-tile');
-const firstTile = document.querySelector('[data-tile="1"]');
-export const foodTile = document.querySelector('.food-tile');
-
-// console.log('GAME BOARD POSITION:');
-// console.log(gameBoardPosition);
-// console.log('---------------------');
 
 export const state = {
   direction: 'up',
   score: 0,
-  snakeLength: 6,
+  snakeLength: 6
 };
 
 export let intervalID;
 
-const setInitialState = function () {
+export const setInitialState = function () {
+  const firstTile = document.querySelector('[data-tile="1"]');
+  const foodTile = document.querySelector('.food-tile');
+
+  firstTile.style.top = '150px';
+  firstTile.style.left = '90px'
+  foodTile.style.top = '90px'
+  foodTile.style.left = '210px'
   state.direction = 'up';
   state.score = 0;
-  firstTile.style.setProperty('top', `150px`);
-  firstTile.style.setProperty('left', `90px`);
-  firstTile.style.setProperty('bottom', `135px`);
-  firstTile.style.setProperty('right', `205px`);
-  foodTile.style.setProperty('top', '90px');
-  foodTile.style.setProperty('left', '205px');
+  state.snakeLength = 6;
+  score.textContent = '0000';
   intervalID = null;
 };
 
 const startGame = function () {
-
-
 
   if (!intervalID) {
     intervalID = setInterval(function () {
       game.moveSnake();
       game.handleReachingBorders();
       game.collectingFoodHandle();
-    }, 400);
+      game.eatHimself()
+    }, 200);
   }
 
   game.changeDirection();
 };
 
-const init = function () {
+export const init = function () {
   game.createRemainingTiles();
   startBtn.addEventListener('click', startGame);
 };
