@@ -1,13 +1,13 @@
-// import { setTimeout } from 'core-js';
+import 'core-js/stable';
 import game from './game.js';
 
-export const score = document.querySelector('.score')
+export const score = document.querySelector('.score');
 const startBtn = document.querySelector('.start-btn');
 
 export const state = {
   direction: 'up',
   score: 0,
-  snakeLength: 6
+  snakeLength: 6,
 };
 
 export let intervalID;
@@ -17,24 +17,24 @@ export const setInitialState = function () {
   const foodTile = document.querySelector('.food-tile');
 
   firstTile.style.top = '150px';
-  firstTile.style.left = '90px'
-  foodTile.style.top = '90px'
-  foodTile.style.left = '210px'
+  firstTile.style.left = '90px';
+  foodTile.style.top = '90px';
+  foodTile.style.left = '210px';
   state.direction = 'up';
   state.score = 0;
   state.snakeLength = 6;
   score.textContent = '0000';
   intervalID = null;
+  game.createRemainingTiles();
 };
 
 const startGame = function () {
-
   if (!intervalID) {
     intervalID = setInterval(function () {
       game.moveSnake();
       game.handleReachingBorders();
       game.collectingFoodHandle();
-      game.eatHimself()
+      game.eatHimself();
     }, 200);
   }
 

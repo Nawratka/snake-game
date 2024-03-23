@@ -1,6 +1,5 @@
 import 'core-js/stable';
-import { state, intervalID, score } from './script';
-import { setInitialState, init } from './script';
+import { state, intervalID, score, setInitialState } from './script';
 
 const firstTile = document.querySelector('[data-tile="1"]');
 const gameBoard = document.querySelector('.game-board');
@@ -85,7 +84,7 @@ class Game {
     });
   }
 
-// ALL DIRECTION FUNCTIONS ADD VALUE 15 TO CURRENT POSITION OF FIRST TILE, BASED ON GENERAL DIRECTION DECLARED IN STATE.DIRECTION (WHICH IS CHANGED WHILE KEYDOWN LISTENING SEE: changeDirection() FUNCTION)
+  // ALL DIRECTION FUNCTIONS ADD VALUE 15 TO CURRENT POSITION OF FIRST TILE, BASED ON GENERAL DIRECTION DECLARED IN STATE.DIRECTION (WHICH IS CHANGED WHILE KEYDOWN LISTENING SEE: changeDirection() FUNCTION)
 
   goUp() {
     const newUp =
@@ -154,10 +153,10 @@ class Game {
     const distance = this.distanceToElement(this.gameBoardPosition);
     for (const [direction, value] of Object.entries(distance)) {
       if (
-        (state.direction === 'up' && direction === 'top' && value === 15) ||
+        (state.direction === 'up' && direction === 'top' && value >= 14) ||
         (state.direction === 'bottom' &&
           direction === 'bottom' &&
-          value === -15) ||
+          value <= -14) ||
         (state.direction === 'left' && direction === 'left' && value >= 14) ||
         (state.direction === 'right' && direction === 'right' && value <= -14)
       )
@@ -166,7 +165,8 @@ class Game {
   }
 
   stopGame() {
-    // WHEN REACHING BORDERS AND EATING HIMSELF
+    // WHEN REACHING BORDERS OR EATING HIMSELF
+
     const snake = Array.from(document.querySelectorAll('.snake-tile'));
 
     // STOP TICKING
@@ -175,19 +175,18 @@ class Game {
     endBox.classList.remove('hidden');
     displayEndScore.textContent = state.score;
 
-    closeBtn.addEventListener('click', e => {
+    function closeEndView(e) {
       if (e.target !== closeBtn) return;
       endBox.classList.add('hidden');
-      snake.forEach((tile, index) => {
-        if (index !== 0) this.removeItem(tile);
-      });
+      for (let i = 1; i < snake.length; i++) {
+        gameBoard.removeChild(snake[i]);
+      }
       setInitialState();
-      init();
-    });
-  }
 
-  removeItem(item) {
-    gameBoard.removeChild(item);
+      closeBtn.removeEventListener('click', closeEndView);
+    }
+
+    closeBtn.addEventListener('click', closeEndView);
   }
 
   collectingFoodHandle() {
