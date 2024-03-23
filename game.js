@@ -4,7 +4,6 @@ import { setInitialState, init } from './script';
 
 const firstTile = document.querySelector('[data-tile="1"]');
 const gameBoard = document.querySelector('.game-board');
-// const score = document.querySelector('.score');
 const endBox = document.querySelector('.end-box');
 const displayEndScore = document.querySelector('.display-score');
 const closeBtn = document.querySelector('.close-btn');
@@ -58,6 +57,7 @@ class Game {
 
   moveSnake() {
     let snakesTiles = document.querySelectorAll('.snake-tile');
+    // ARRAY WITH COORDS OD EACH SNAKE'S TILE
     let coords = [];
     snakesTiles.forEach(tile => {
       coords.push({
@@ -75,6 +75,7 @@ class Game {
   }
 
   moveRemainingTiles(snakesTiles, coords) {
+    // MOVE EACH SNAKE'S TILE TO POSITION OF PREVIOUS TILE BASED ON COORDINATES ARRAY TOOK ON EACH TIME TICK
     snakesTiles.forEach((tile, index) => {
       if (tile.dataset.tile === '1') return;
       const { top, left } = coords[index - 1];
@@ -83,6 +84,8 @@ class Game {
       tile.style.setProperty('left', `${left}px`);
     });
   }
+
+// ALL DIRECTION FUNCTIONS ADD VALUE 15 TO CURRENT POSITION OF FIRST TILE, BASED ON GENERAL DIRECTION DECLARED IN STATE.DIRECTION (WHICH IS CHANGED WHILE KEYDOWN LISTENING SEE: changeDirection() FUNCTION)
 
   goUp() {
     const newUp =
@@ -119,7 +122,7 @@ class Game {
 
   changeDirection() {
     window.addEventListener('keydown', e => {
-      // key other than directions
+      // KEY OTHER THAN ARROW KEYS
       if (
         !e.keyCode === 37 ||
         !e.keyCode === 38 ||
@@ -128,13 +131,13 @@ class Game {
       )
         return;
 
-      // can't change on opposite direction
+      // CAN'T CHOICE OPPOSITE DIRECTION
       if (state.direction === 'up' && e.keyCode === 40) return;
       if (state.direction === 'bottom' && e.keyCode === 38) return;
       if (state.direction === 'left' && e.keyCode === 39) return;
       if (state.direction === 'right' && e.keyCode === 37) return;
 
-      // change direction
+      // CHANGE DIRECTION
       state.direction = this.directionToGo(e.keyCode);
     });
   }
@@ -147,6 +150,7 @@ class Game {
   };
 
   handleReachingBorders() {
+    // CHECK IF FIRST TILE IS OUT OF BORDER
     const distance = this.distanceToElement(this.gameBoardPosition);
     for (const [direction, value] of Object.entries(distance)) {
       if (
@@ -154,25 +158,28 @@ class Game {
         (state.direction === 'bottom' &&
           direction === 'bottom' &&
           value === -15) ||
-        (state.direction === 'left' && direction === 'left' && value === 15) ||
-        (state.direction === 'right' && direction === 'right' && value === -15)
+        (state.direction === 'left' && direction === 'left' && value >= 14) ||
+        (state.direction === 'right' && direction === 'right' && value <= -14)
       )
         this.stopGame();
     }
   }
 
   stopGame() {
+    // WHEN REACHING BORDERS AND EATING HIMSELF
     const snake = Array.from(document.querySelectorAll('.snake-tile'));
 
+    // STOP TICKING
     clearInterval(intervalID);
+    // SHOW END VIEW AND SCORE
     endBox.classList.remove('hidden');
     displayEndScore.textContent = state.score;
+
     closeBtn.addEventListener('click', e => {
       if (e.target !== closeBtn) return;
       endBox.classList.add('hidden');
-      snake.forEach((tile,index) => {
-        if(index === 0) return
-        this.removeItem(tile)
+      snake.forEach((tile, index) => {
+        if (index !== 0) this.removeItem(tile);
       });
       setInitialState();
       init();
@@ -180,10 +187,11 @@ class Game {
   }
 
   removeItem(item) {
-    gameBoard.removeChild(item)
+    gameBoard.removeChild(item);
   }
 
   collectingFoodHandle() {
+    // CHECK IF FIRST TILE'S POSITION === FOOD TILES
     if (
       this.positionOfElement(foodTile).top ===
         this.positionOfElement(firstTile).top &&
@@ -204,12 +212,41 @@ class Game {
   }
 
   createFoodTile() {
+    // GETS SNAKE'S TILES POSITIONS AND GENERATE FOOD TILE OUT OF SNAKE'S BODY
+
+    // ARRAY WITH [TOP, LEFT] OF EACH SNAKE'S TILES
+    const snakesTilesPosition = [];
+    let snakesTiles = document.querySelectorAll('.snake-tile');
+    snakesTiles.forEach(tile =>
+      snakesTilesPosition.push([tile.style.top, tile.style.left])
+    );
+
     foodTile = document.createElement('div');
     foodTile.classList.add('food-tile', 'tile');
+
+    // GENERATE POSITION TOP
     let top = this.getRandomInt(boardWidth);
+    // AVOID FOOD ON SNAKE - TOP
+    snakesTilesPosition.forEach(tile => {
+      while (+tile[0].slice(0, -2) === top) {
+        top = this.getRandomInt(boardWidth);
+      }
+    });
+    // SET TOP VALUE
     foodTile.style.setProperty('top', `${top}px`);
+
+    // GENERATE POSITION LEFT
     let left = this.getRandomInt(boardWidth);
+    // AVOID FOOD ON SNAKE - LEFT
+    snakesTilesPosition.forEach(tile => {
+      while (+tile[1].slice(0, -2) === left) {
+        left = this.getRandomInt(boardWidth);
+      }
+    });
+    // SET LEFT VALUE
     foodTile.style.setProperty('left', `${left}px`);
+
+    // ADD NEW FOOD TILE TO GAME BOARD
     gameBoard.appendChild(foodTile);
   }
 
@@ -222,6 +259,7 @@ class Game {
   }
 
   extendSnake() {
+    // ADD NEW TILE AFTER SNAKE'S LAST TILE
     const currentTiles = document.querySelectorAll('.snake-tile');
 
     let lastTile = document.querySelector(
@@ -247,6 +285,7 @@ class Game {
   }
 
   eatHimself() {
+    // CHECK IF FIRST TILE GOT SAME POSITION 'TOP' AND 'LEFT' LIKE ONE OF ITSELF'S TILES
     const snakesTiles = document.querySelectorAll('.snake-tile');
     snakesTiles.forEach((tile, index) => {
       if (index <= 3) return;
