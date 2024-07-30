@@ -15,14 +15,10 @@
 
   --game-bg: #dfdfdf;
   --main-green: rgb(119, 196, 119);
-  --deep-green: rgb(110, 147, 110);
-  --food-bg: rgb(217, 217, 14);
+  --deep-green: rgb(36, 112, 36);
+  --first-skin: radial-gradient(circle, rgb(196, 243, 57) 0%, rgba(132,152,97,1) 95%); 
 
   --tile-size: 15px;
-  // --first-tile-top: 150px;
-  // --first-tile-left: 90px;
-  // --first-tile-bottom: 135px;
-  // --first-tile-right: 205px;
   --food-top: 90px;
   --food-left: 210px;
 }
@@ -52,6 +48,7 @@ body {
   top: 5vh;
   font-size: 3em;
   color: var(--font-color);
+  text-shadow: 5px 5px 5px #000;
 }
 
 .container {
@@ -109,20 +106,45 @@ body {
 }
 
 .arrows {
+  margin-left: 10px;
   font-size: 1.8rem;
+  pointer-events: none;
 }
 
 .btn {
+  position: relative;
   height: 30px;
   background-color: var(--main-green);
   color: var(--font-color);
+  letter-spacing: 2px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  border-radius: 15px;
   border: none;
   outline: none;
-  border-radius: 2px;
-  transition: background-color 0.3s;
+  transition: background-color 0.5s;
   cursor: pointer;
+  overflow: hidden;
+}
+
+.btn::before {
+	content: '';
+  display: block;
+	position: absolute;
+	left: -60px;
+	top: -15px;
+	width: 50px;
+	height: 50px;
+  transform: rotate(20deg);
+	background-image: linear-gradient(
+		-90deg,
+		rgba(255, 255, 255, 0.5),
+		rgba(255, 255, 255, 0)
+	);
+	transition: left 0.5s;
+}
+
+.btn:hover::before {
+	left: 130%;
 }
 
 .btn:hover {
@@ -153,9 +175,32 @@ body {
 }
 
 .snake-tile {
-  background-color: var(--main-green);
+  background: rgb(130,239,126);
+  background: var(--first-skin);
   border: 1px solid var(--deep-green);
+  border-radius: 5px;
   left: var(--first-tile-left);
+}
+.snake-tile:nth-child(1)::before,
+.snake-tile:nth-child(1)::after {
+  content: '';
+  width: 3px;
+  height: 4px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: white;
+  border-bottom: 3px solid black;
+}
+
+.snake-tile:nth-child(1)::before {
+  top: 40%;
+  left: 30%;
+}
+
+.snake-tile:nth-child(1)::after {
+  top: 40%;
+  left: 70%;
 }
 
 [data-tile='1'] {
@@ -168,6 +213,39 @@ body {
   left: var(--food-left);
   background-color: var(--food-bg);
   border: 1px solid var(--deep-green);
+  border-top-left-radius: 25%;
+  border-top-right-radius: 25%;
+  border-bottom-right-radius: 35%;
+  border-bottom-left-radius: 35%;
+  background: rgb(233, 93, 93);
+  background: linear-gradient(
+    0deg,
+    rgba(233, 93, 93, 1) 0%,
+    rgba(255, 195, 111, 1) 24%
+  );
+}
+.food-tile::before {
+  content: '';
+  width: 50%;
+  height: 35%;
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  border-radius: 10px 0;
+  background-color: rgb(60, 177, 60);
+  border: 1px solid green;
+}
+.food-tile::after {
+  content: '';
+  width: 2px;
+  height: 7px;
+  position: absolute;
+  top: 5px;
+  left: 20%;
+  transform: skew(10deg);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.667);
+  border: none;
 }
 
 .end-box {
@@ -178,8 +256,8 @@ body {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
-  background-color: #00000087;
+  gap: 20px;
+  background-color: rgba(0, 0, 0, 0.73);
 }
 
 .close-btn {
@@ -189,6 +267,24 @@ body {
 .summation {
   font-size: 3rem;
   font-weight: bold;
+  color: var(--font-color);
+}
+
+.underline {
+  width: 100%;
+  height: 3px;
+  background-color: #fff;
+}
+
+.scores {
+  width: 100%;
+  height: max-content;
+  background-color: pink;
+}
+
+.score-list {
+  font-size: 20px;
+  line-height: 30px;
   color: var(--font-color);
 }
 

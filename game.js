@@ -1,15 +1,24 @@
 import 'core-js/stable';
-import { state, intervalID, score, setInitialState } from './script';
+import {
+  state,
+  intervalID,
+  score,
+  setInitialState,
+  removeNaviHandle,
+  scoresArr,
+} from './script';
 
 const firstTile = document.querySelector('[data-tile="1"]');
 const gameBoard = document.querySelector('.game-board');
 const endBox = document.querySelector('.end-box');
 const displayEndScore = document.querySelector('.display-score');
+const scoresBox = document.querySelector('.scores-box');
 const closeBtn = document.querySelector('.close-btn');
 const boardWidth = +window.getComputedStyle(gameBoard).width.slice(0, -2);
 let foodTile = document.querySelector('.food-tile');
 
 class Game {
+  // CONSTANT VALUES
   gameBoardPosition = {
     top: Math.floor(gameBoard.getBoundingClientRect().top),
     bottom: Math.floor(gameBoard.getBoundingClientRect().bottom),
@@ -23,15 +32,6 @@ class Game {
       bottom: Math.floor(element.getBoundingClientRect().bottom),
       left: Math.floor(element.getBoundingClientRect().left),
       right: Math.floor(element.getBoundingClientRect().right),
-    };
-  }
-
-  distanceToElement(element) {
-    return {
-      top: element.top - this.positionOfElement(firstTile).top,
-      bottom: element.bottom - this.positionOfElement(firstTile).bottom,
-      left: element.left - this.positionOfElement(firstTile).left,
-      right: element.right - this.positionOfElement(firstTile).right,
     };
   }
 
@@ -56,7 +56,7 @@ class Game {
 
   moveSnake() {
     let snakesTiles = document.querySelectorAll('.snake-tile');
-    // ARRAY WITH COORDS OD EACH SNAKE'S TILE
+    // ARRAY WITH COORDS OF EACH SNAKE'S TILE
     let coords = [];
     snakesTiles.forEach(tile => {
       coords.push({
@@ -84,7 +84,7 @@ class Game {
     });
   }
 
-  // ALL DIRECTION FUNCTIONS ADD VALUE 15 TO CURRENT POSITION OF FIRST TILE, BASED ON GENERAL DIRECTION DECLARED IN STATE.DIRECTION (WHICH IS CHANGED WHILE KEYDOWN LISTENING SEE: changeDirection() FUNCTION)
+  // ALL DIRECTION FUNCTIONS ADD VALUE 15 TO CURRENT POSITION OF FIRST TILE, BASED ON GENERAL DIRECTION DECLARED IN STATE.DIRECTION (WHICH IS CHANGED WHILE KEYDOWN LISTENING SEE: directionToGo() METHOD
 
   goUp() {
     const newUp =
@@ -119,74 +119,85 @@ class Game {
     firstTile.style.setProperty('left', `${newRight}px`);
   }
 
-  changeDirection() {
-    window.addEventListener('keydown', e => {
-      // KEY OTHER THAN ARROW KEYS
-      if (
-        !e.keyCode === 37 ||
-        !e.keyCode === 38 ||
-        !e.keyCode === 39 ||
-        !e.keyCode === 40
-      )
-        return;
+  directionToGo(ekey) {
+    if (
+      // CAN'T CHOICE OPPOSITE DIRECTION AND THE SAME DIRECTION
+      (state.direction === 'up' && ekey === 'ArrowDown') ||
+      (state.direction === 'up' && ekey === 'ArrowDown') ||
+      (state.direction === 'bottom' && ekey === 'ArrowDown') ||
+      (state.direction === 'bottom' && ekey === 'ArrowUp') ||
+      (state.direction === 'left' && ekey === 'ArrowLeft') ||
+      (state.direction === 'left' && ekey === 'ArrowRight') ||
+      (state.direction === 'right' && ekey === 'ArrowLeft') ||
+      (state.direction === 'right' && ekey === 'ArrowRight')
+    )
+      return state.direction;
 
-      // CAN'T CHOICE OPPOSITE DIRECTION
-      if (state.direction === 'up' && e.keyCode === 40) return;
-      if (state.direction === 'bottom' && e.keyCode === 38) return;
-      if (state.direction === 'left' && e.keyCode === 39) return;
-      if (state.direction === 'right' && e.keyCode === 37) return;
-
-      // CHANGE DIRECTION
-      state.direction = this.directionToGo(e.keyCode);
-    });
+    if (ekey === 'ArrowLeft') return 'left';
+    if (ekey === 'ArrowUp') return 'up';
+    if (ekey === 'ArrowRight') return 'right';
+    if (ekey === 'ArrowDown') return 'bottom';
   }
-
-  directionToGo = function (keycode) {
-    if (keycode === 37) return 'left';
-    if (keycode === 38) return 'up';
-    if (keycode === 39) return 'right';
-    if (keycode === 40) return 'bottom';
-  };
 
   handleReachingBorders() {
     // CHECK IF FIRST TILE IS OUT OF BORDER
-    const distance = this.distanceToElement(this.gameBoardPosition);
-    for (const [direction, value] of Object.entries(distance)) {
-      if (
-        (state.direction === 'up' && direction === 'top' && value >= 14) ||
-        (state.direction === 'bottom' &&
-          direction === 'bottom' &&
-          value <= -14) ||
-        (state.direction === 'left' && direction === 'left' && value >= 14) ||
-        (state.direction === 'right' && direction === 'right' && value <= -14)
-      )
-        this.stopGame();
+    if (
+      this.positionOfElement(firstTile).top < this.gameBoardPosition.top ||
+      this.positionOfElement(firstTile).bottom - 1 >
+        this.gameBoardPosition.bottom ||
+      this.positionOfElement(firstTile).left < this.gameBoardPosition.left ||
+      this.positionOfElement(firstTile).right - 1 > this.gameBoardPosition.right
+    ) {
+      this.stopGame();
     }
   }
 
+  // WHEN REACHING BORDERS OR EATING HIMSELF
   stopGame() {
-    // WHEN REACHING BORDERS OR EATING HIMSELF
-
     const snake = Array.from(document.querySelectorAll('.snake-tile'));
 
     // STOP TICKING
     clearInterval(intervalID);
+
     // SHOW END VIEW AND SCORE
     endBox.classList.remove('hidden');
     displayEndScore.textContent = state.score;
-
+    scoresArr.push(state.score);
     function closeEndView(e) {
       if (e.target !== closeBtn) return;
       endBox.classList.add('hidden');
+      closeBtn.removeEventListener('click', closeEndView);
+
+      // REMOVE OLD SNAKE'S TILES AND SET START SETTINGS
       for (let i = 1; i < snake.length; i++) {
-        gameBoard.removeChild(snake[i]);
+        const child = snake[i];
+        gameBoard.removeChild(child);
       }
       setInitialState();
-
-      closeBtn.removeEventListener('click', closeEndView);
     }
-
     closeBtn.addEventListener('click', closeEndView);
+    this.scoresHandle();
+    removeNaviHandle();
+  }
+
+  scoresHandle() {
+    scoresArr.sort((a, b) => b - a);
+    scoresBox.innerHTML = '';
+
+    const ol = document.createElement('ol');
+    ol.classList.add('score-list');
+
+    ol.appendChild(document.createElement('li'));
+    ol.appendChild(document.createElement('li'));
+    ol.appendChild(document.createElement('li'));
+    ol.appendChild(document.createElement('li'));
+    ol.appendChild(document.createElement('li'));
+
+    scoresBox.appendChild(ol);
+
+    document.querySelectorAll('li').forEach((li, i) => {
+      scoresArr[i] !== 0 ? (li.textContent = scoresArr[i]) : '';
+    });
   }
 
   collectingFoodHandle() {
@@ -203,6 +214,17 @@ class Game {
       this.removeEatenTile();
       this.extendSnake();
       this.createFoodTile();
+    }
+  }
+
+  skin() {
+    if (state.score > 190) {
+      document.querySelectorAll('.snake-tile').forEach(tile => {
+        tile.style.setProperty(
+          '--first-skin',
+          'radial-gradient(circle, rgb(196, 243, 57) 0%, rgb(173, 113, 35) 95%)'
+        );
+      });
     }
   }
 
